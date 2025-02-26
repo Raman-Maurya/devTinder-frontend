@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { removeUser } from "../utils/userSlice";
 
-const Navbar = ()=>{
+const NavBar = ()=>{
   const user = useSelector((store)=>store.user);   //subscribing to store
    console.log(user);
   const navigate = useNavigate()
@@ -24,7 +24,7 @@ const Navbar = ()=>{
     return(
         <div className="navbar bg-base-300">
         <div className="flex-1">
-          <Link to="/" className="btn btn-ghost text-xl">Dev's Tinder</Link>
+          <Link to="/" className="btn btn-ghost text-xl">Dev Tinder</Link>
         </div>
         
           {user &&(
@@ -60,4 +60,4 @@ const Navbar = ()=>{
       </div>
     )
 }
-export default Navbar;
+export default NavBar;
