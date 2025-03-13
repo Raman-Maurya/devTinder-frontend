@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +9,9 @@ const Login = () => {
 
     //create state
     const[emailId, setEmailId] = useState("");
-    const[password, setpassword] = useState("");
+    const[password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+
     const[firstName, setFirstName] = useState("");
     const[isLoginForm, setIsLoginForm] = useState(false)
 
@@ -24,7 +27,8 @@ const Login = () => {
         password,
       },{withCredentials:true} )
       dispatch(addUser(res.data.data));
-      return navigate("/");
+      navigate("/");
+      return navigate(0);
     } catch (err) {
       setError(err?.response?.data);
 
@@ -41,7 +45,8 @@ const handleLogin = async ()=>{
     },{withCredentials:true});
     //console.log(res.data);
     dispatch(addUser(res.data));
-    return navigate("/");
+    navigate("/");
+      return navigate(0);
 }catch(err){
   setError(err?.response?.data);
         console.log(err);
@@ -62,10 +67,22 @@ const handleLogin = async ()=>{
   <input type="text" value={emailId} placeholder="Enter Email" className="input input-bordered w-full max-w-xs"
   onChange={(e)=>setEmailId(e.target.value)} />
 </label>
-          <label className="form-control w-full max-w-xs my-3">
-  <input type="password" value={password} placeholder="Enter password" className="input input-bordered w-full max-w-xs" 
-  onChange={(e)=>setpassword(e.target.value)}/>
-</label>
+<label className="form-control w-full max-w-xs my-3 relative">
+      <input
+        type={showPassword ? "text" : "password"}
+        value={password}
+        placeholder="Enter password"
+        className="input input-bordered w-full max-w-xs pr-10"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        type="button"
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </label>
 
           </div>
           <p className="text-red-900"> {error}</p>

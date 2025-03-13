@@ -6,6 +6,7 @@ import { removeUser } from "../utils/userSlice";
 
 const NavBar = ()=>{
   const user = useSelector((store)=>store.user);   //subscribing to store
+ 
    console.log(user);
   const navigate = useNavigate()
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ const NavBar = ()=>{
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">  
               <div className="w-10 rounded-full">
                 <img
-                  alt="{user.firstName}'s photo"
+                  alt=" photo"
                   src={user.photoUrl} />
                  </div>
             </div>
