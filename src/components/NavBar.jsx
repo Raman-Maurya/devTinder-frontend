@@ -24,7 +24,9 @@ const NavBar = ()=>{
     return(
         <div className="navbar bg-base-300">
         <div className="flex-1">
-          <Link to="/" className="btn btn-ghost text-xl">Dev Tinder</Link>
+          <Link to="/" className="btn btn-ghost text-xl">
+          🚀 Dev Tinder </Link>
+          <p className="text-sm text-gray-500">-Made for Developers 💻</p>
         </div>
         
           {user &&(
@@ -50,7 +52,11 @@ const NavBar = ()=>{
               <li>
                 <Link to="/requests">Requests</Link></li>
                 <li>
+                <Link to="/premium">Premium</Link></li>
+                <li>
                 <Link to="/connections">Connections</Link></li>
+                <li>
+                <Link to="/connections">Chat</Link></li>
               <li><a onClick={handleLogout}>Logout</a></li>
             </ul>
           </div>
