@@ -33,7 +33,7 @@ const NavBar = ()=>{
     <div className="sticky top-0 z-50 backdrop-blur-md bg-white/70 shadow-md">
       <div className="navbar max-w-7xl mx-auto px-4">
         <div className="flex-1">
-          <Link to="/login" onClick={handleLogoClick} className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition-colors">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition-colors">
             <span className="text-2xl font-bold">🚀 Dev Tinder</span>
             <span className="hidden md:inline-block text-sm font-medium bg-indigo-100 text-indigo-800 py-1 px-2 rounded-full">Connect with Developers 💻</span>
           </Link>
