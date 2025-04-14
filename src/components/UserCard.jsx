@@ -1,32 +1,188 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
-import { removeUserFromFeed } from "../utils/feedSlice";
+import { useState, useRef, useEffect } from "react";
 
-const UserCard = ({ user }) => {
+const UserCard = ({ user, onCardRemoved }) => {
   const { _id, firstName, lastName, photoUrl, age, gender, about, skills = [] } = user;
   const dispatch = useDispatch();
+  
+  // Refs and state for swipe functionality
+  const cardRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [offsetX, setOffsetX] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState(null);
+  const [swipeComplete, setSwipeComplete] = useState(false);
+  
+  // Constants for swipe thresholds
+  const SWIPE_THRESHOLD = 100; // px to determine a successful swipe
+  const MAX_ROTATION = 30; // max rotation in degrees
 
   const handleSendRequest = async (status, userId) => {
     try {
-      const res = await axios.post(
+      await axios.post(
         BASE_URL + "/request/send/" + status + "/" + userId,
         {},
         { withCredentials: true }
       );
-      dispatch(removeUserFromFeed(userId));
+      
+      // Notify parent component that this card is being removed
+      if (onCardRemoved) {
+        onCardRemoved(userId);
+      }
     } catch (err) {
       console.error("Error sending request:", err);
     }
   };
+  
+  // Touch/Mouse event handlers
+  const handleDragStart = (clientX) => {
+    setIsDragging(true);
+    setStartX(clientX);
+  };
+  
+  const handleDragMove = (clientX) => {
+    if (!isDragging) return;
+    
+    const newOffsetX = clientX - startX;
+    setOffsetX(newOffsetX);
+    
+    // Update swipe direction for visual feedback
+    if (newOffsetX > 20) {
+      setSwipeDirection("right");
+    } else if (newOffsetX < -20) {
+      setSwipeDirection("left");
+    } else {
+      setSwipeDirection(null);
+    }
+  };
+  
+  const handleDragEnd = () => {
+    if (!isDragging) return;
+    
+    if (offsetX > SWIPE_THRESHOLD) {
+      // Right swipe - Connect
+      setSwipeComplete(true);
+      setTimeout(() => handleSendRequest("interested", _id), 300);
+    } else if (offsetX < -SWIPE_THRESHOLD) {
+      // Left swipe - Skip
+      setSwipeComplete(true);
+      setTimeout(() => handleSendRequest("ignored", _id), 300);
+    } else {
+      // Reset if swipe was not decisive
+      setOffsetX(0);
+      setSwipeDirection(null);
+    }
+    
+    setIsDragging(false);
+  };
+  
+  // Mouse event handlers
+  const handleMouseDown = (e) => {
+    handleDragStart(e.clientX);
+  };
+  
+  const handleMouseMove = (e) => {
+    handleDragMove(e.clientX);
+  };
+  
+  const handleMouseUp = () => {
+    handleDragEnd();
+  };
+  
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      handleDragEnd();
+    }
+  };
+  
+  // Touch event handlers
+  const handleTouchStart = (e) => {
+    handleDragStart(e.touches[0].clientX);
+  };
+  
+  const handleTouchMove = (e) => {
+    handleDragMove(e.touches[0].clientX);
+  };
+  
+  const handleTouchEnd = () => {
+    handleDragEnd();
+  };
+  
+  // Clean up event listeners
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    
+    const handleWindowMouseUp = () => {
+      if (isDragging) {
+        handleDragEnd();
+      }
+    };
+    
+    window.addEventListener('mouseup', handleWindowMouseUp);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
+  }, [isDragging]);
+  
+  // Calculate card styles based on drag state
+  const getCardStyle = () => {
+    if (!isDragging && !swipeComplete) return {};
+    
+    const rotation = (offsetX / SWIPE_THRESHOLD) * MAX_ROTATION;
+    const rotationClamped = Math.max(Math.min(rotation, MAX_ROTATION), -MAX_ROTATION);
+    
+    return {
+      transform: swipeComplete 
+        ? `translateX(${offsetX > 0 ? '120%' : '-120%'}) rotate(${rotationClamped}deg)` 
+        : `translateX(${offsetX}px) rotate(${rotationClamped}deg)`,
+      transition: swipeComplete ? 'transform 0.5s ease' : 'none'
+    };
+  };
 
   return (
-    <div className="card-hover-effect w-full max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden animate-fadeIn">
+    <div 
+      className="card-hover-effect w-full max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden animate-fadeIn relative cursor-grab"
+      ref={cardRef}
+      style={getCardStyle()}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Swipe Indicator Overlays */}
+      {swipeDirection === "right" && (
+        <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
+          <div className="bg-green-500 text-white px-6 py-3 rounded-full font-bold transform -rotate-12 scale-110">
+            CONNECT
+          </div>
+        </div>
+      )}
+      {swipeDirection === "left" && (
+        <div className="absolute inset-0 bg-red-500/20 z-10 flex items-center justify-center">
+          <div className="bg-red-500 text-white px-6 py-3 rounded-full font-bold transform rotate-12 scale-110">
+            SKIP
+          </div>
+        </div>
+      )}
+      
+      {/* Swipe Instructions */}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-black/60 text-white text-xs py-1 px-3 rounded-full z-20 whitespace-nowrap">
+        Swipe right to connect, left to skip
+      </div>
+
       <div className="relative">
         <img 
           src={photoUrl || "https://via.placeholder.com/400x300?text=No+Photo"} 
           alt={`${firstName}'s profile`}
           className="w-full h-64 object-cover" 
+          draggable="false"
         />
         <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-gradient-to-t from-black/70 to-transparent">
           <h2 className="text-2xl font-bold text-white mb-1">
