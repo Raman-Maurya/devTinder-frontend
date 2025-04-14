@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { addFeed } from "../utils/feedSlice";
+import { addFeed, removeUserFromFeed } from "../utils/feedSlice";
 import { useEffect, useState } from "react";
 import UserCard from "./UserCard";
 
@@ -10,6 +10,8 @@ const Feed = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const getFeed = async () => {
     setLoading(true);
@@ -18,6 +20,7 @@ const Feed = () => {
         withCredentials: true,
       });
       dispatch(addFeed(res?.data?.data));
+      setCurrentCardIndex(0);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching feed:", err);
@@ -29,6 +32,18 @@ const Feed = () => {
   useEffect(() => {
     getFeed();
   }, []);
+
+  // Handle card removal and show next card
+  const handleCardRemoved = (userId) => {
+    setIsTransitioning(true);
+    
+    // Short delay to allow the swipe animation to complete
+    setTimeout(() => {
+      // Remove the user from the feed in Redux
+      dispatch(removeUserFromFeed(userId));
+      setIsTransitioning(false);
+    }, 300);
+  };
 
   if (loading) {
     return (
@@ -88,8 +103,22 @@ const Feed = () => {
   return (
     <div className="page-container py-8">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">Find Your Developer Match</h1>
-      <div className="max-w-md mx-auto">
-        <UserCard user={feed[0]} />
+      <div className="max-w-md mx-auto relative h-[520px]">
+        {/* Card stack with positioning to ensure cards are centered */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {feed.length > 0 && !isTransitioning && (
+            <UserCard 
+              key={feed[0]._id} 
+              user={feed[0]} 
+              onCardRemoved={handleCardRemoved} 
+            />
+          )}
+        </div>
+      </div>
+      
+      {/* Card counter */}
+      <div className="mt-6 text-center text-gray-500">
+        <span>{feed.length} developer{feed.length !== 1 ? 's' : ''} left</span>
       </div>
     </div>
   );
