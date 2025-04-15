@@ -5,8 +5,10 @@ export const createSocketConnection = () => {
   if (location.hostname === "localhost") {
     return io(BASE_URL);
   } else {
-    return io("/", { path: "https://dev-backend-7igo.onrender.com/socket.io" },
-             withCredentials:true);
+    // For production - connect to your actual backend URL
+    return io("https://dev-backend-7igo.onrender.com", {
+      withCredentials: true  // Important for authentication
+    });
   }
 };
 
