@@ -8,8 +8,8 @@ import { BASE_URL } from "../utils/constants";
 
 const Login = () => {
     // Create state
-    const [emailId, setEmailId] = useState("raman@gmail.com");
-    const [password, setPassword] = useState("Raman@123");
+    const [emailId, setEmailId] = useState("exampleuser@gmail.com");
+    const [password, setPassword] = useState("Example@123");
     const [showPassword, setShowPassword] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [isLoginForm, setIsLoginForm] = useState(true);
@@ -83,6 +83,7 @@ const Login = () => {
     return (
         <div className="flex justify-center items-center min-h-[80vh] px-4 py-12 animate-fadeIn">
             <div className="card w-full max-w-md overflow-hidden bg-white">
+            <h6 className="px-2">Use these credentials to test!!</h6>
                 <div className="p-8 md:p-10">
                     <div className="text-center mb-8">
                         <h2 className="text-3xl font-bold text-indigo-600 mb-2">
