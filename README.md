@@ -28,3 +28,12 @@ TailwindCSS and DaisyUI component library – Styling
 Axios – API calls
 
 React Router – Navigation
+
+
+## Further plans 📌
+ 
+ Dark mode support
+
+ Profile recommendations with AI
+
+ Video/Voice chat integration
