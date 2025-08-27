@@ -12,6 +12,19 @@ DevTinder is a developer networking platform inspired by Tinder – built to hel
 
 💬 Real-Time Chat with matched developers
 
-🎨 Responsive UI with clean design using DaisyUI component library
+🎨 Responsive UI with clean design 
 
 💻 RazorPay Payment Integration
+
+
+🛠️ Tech Stack
+
+React.js – Frontend library
+
+Redux = State management
+
+TailwindCSS and DaisyUI component library – Styling
+
+Axios – API calls
+
+React Router – Navigation
